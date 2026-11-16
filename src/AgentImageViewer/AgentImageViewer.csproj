@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <!-- Only for the tray icon (System.Windows.Forms.NotifyIcon). -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>AgentImageViewer</RootNamespace>
+    <StartupObject>AgentImageViewer.Program</StartupObject>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <Product>Agent Image Viewer</Product>
+    <Description>Shows the images Claude Code reads, in a tray-resident window.</Description>
+    <!-- DPI awareness comes from app.manifest, which is the WPF way; the WinForms analyzer suggests otherwise. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AgentImageViewer.Core/AgentImageViewer.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WPF-UI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The tray icon; the same file is the exe's icon. -->
+    <EmbeddedResource Include="Assets\app.ico" LogicalName="AgentImageViewer.app.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Keep WinForms out of the global usings so WPF types stay unambiguous. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+</Project>

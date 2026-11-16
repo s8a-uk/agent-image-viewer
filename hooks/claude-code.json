@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Read|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /path/to/agent-image-viewer/hooks/image_viewer_hook.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
