@@ -1,0 +1,8 @@
+bin/
+obj/
+dist/
+.nuget/
+*.user
+.vs/
+__pycache__/
+TestResults/

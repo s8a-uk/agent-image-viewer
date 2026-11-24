@@ -1,0 +1,16 @@
+{
+  "image-viewer": {
+    "PostToolUse": [
+      {
+        "matcher": "read_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /path/to/agent-image-viewer/hooks/image_viewer_hook.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

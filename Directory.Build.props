@@ -1,0 +1,18 @@
+<Project>
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <!-- Lets the Windows-only projects build (not run) in the Linux container. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- One version for every assembly; shown in the settings window and the error log. -->
+    <Version>0.1.0</Version>
+    <Authors>s8a-uk</Authors>
+    <Copyright>Copyright (c) 2026 s8a-uk</Copyright>
+  </PropertyGroup>
+
+</Project>

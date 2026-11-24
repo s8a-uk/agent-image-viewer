@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "1"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  TESTINGPLATFORM_TELEMETRY_OPTOUT: "1"
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+  SOLUTION: AgentImageViewer.slnx
+
+jobs:
+  linux:
+    name: Format, build and Core tests (Linux)
+    runs-on: ubuntu-latest
+    # A hung test would otherwise run until the 6-hour default.
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION }}
+
+      - name: Check formatting
+        run: dotnet format ${{ env.SOLUTION }} --verify-no-changes --no-restore
+
+      # The Windows-only projects compile here too (EnableWindowsTargeting); their tests run in the other job.
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore
+
+      - name: Test
+        run: dotnet test --solution ${{ env.SOLUTION }} -c Release --no-build
+
+      - name: Test the agent hook
+        run: python3 -m unittest discover -s hooks/tests -v
+
+  windows:
+    name: Build, all tests and publish (Windows)
+    runs-on: windows-latest
+    # A hung test would otherwise run until the 6-hour default.
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('global.json', 'Directory.Packages.props', '**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore ${{ env.SOLUTION }}
+
+      - name: Build
+        run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore
+
+      - name: Test
+        run: dotnet test --solution ${{ env.SOLUTION }} -c Release --no-build
+
+      # Same command as "make publish".
+      - name: Publish
+        run: >
+          dotnet publish src/AgentImageViewer -c Release -r win-x64 --self-contained false
+          -p:PublishSingleFile=true -p:DebugType=none -o dist
+
+      # Only for pushed commits: an exe built from an unreviewed pull request should not be offered for download.
+      - if: github.event_name == 'push'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: AgentImageViewer
+          path: |
+            dist/AgentImageViewer.exe
+            LICENSE
+            THIRD-PARTY-NOTICES.txt
+          if-no-files-found: error

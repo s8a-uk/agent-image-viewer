@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AgentImageViewer.Core/AgentImageViewer.Core.csproj" />
+    <Project Path="src/AgentImageViewer/AgentImageViewer.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AgentImageViewer.Core.Tests/AgentImageViewer.Core.Tests.csproj" />
+    <Project Path="tests/AgentImageViewer.Tests/AgentImageViewer.Tests.csproj" />
+  </Folder>
+</Solution>
